@@ -2,8 +2,10 @@ package main;
 
 import main.bean.Ship;
 import main.bean.ShipPosition;
+import main.bean.ShipType;
 import main.dao.ShipRepository;
 import main.service.ShipPositionService;
+import main.service.ShipTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -20,6 +22,9 @@ public class DemoApplication implements CommandLineRunner {
 
     @Autowired
     private ShipPositionService shipPositionService;
+
+    @Autowired
+    private ShipTypeService shipTypeService;
 
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
@@ -38,8 +43,8 @@ public class DemoApplication implements CommandLineRunner {
             System.out.println("MMSI: " + firstShip.getMmsi());
             System.out.println("船名: " + firstShip.getShipName());
 
-            // 使用第一艘船的 MMSI 查询其位置记录
-            List<ShipPosition> positions = shipPositionService.findPositionsByShipMmsi(firstShip.getMmsi());
+            // 查询第一艘船位置记录
+            List<ShipPosition> positions = shipPositionService.findByShipId(firstShip.getId());
             if (!positions.isEmpty()) {
                 System.out.println("该船的位置信息记录:");
                 for (ShipPosition position : positions) {
@@ -52,6 +57,21 @@ public class DemoApplication implements CommandLineRunner {
             } else {
                 System.out.println("没有找到该船的任何位置信息记录。");
             }
+
+            //查询第一艘船的船舶类型
+            ShipType shipType = shipTypeService.findByTypeCode(firstShip.getShipTypeId());
+            if (shipType != null) {
+                System.out.println("船舶类型ID: " + shipType.getId());
+                System.out.println("船舶类型名称: " + shipType.getTypeName());
+                System.out.println("船舶类型代码: " + shipType.getTypeCode());
+                System.out.println("船舶类型描述: " + shipType.getDescription());
+                System.out.println("船舶类型更新时间: " + shipType.getUpdateTime());
+                System.out.println("船舶类型创建时间: " + shipType.getCreateTime());
+
+            } else {
+                System.out.println("未找到船舶类型");
+            }
+
         } else {
             System.out.println("没有找到任何船舶信息。");
         }

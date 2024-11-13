@@ -4,8 +4,8 @@ import main.bean.Ship;
 import main.dao.ShipRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ShipService {
@@ -23,18 +23,19 @@ public class ShipService {
     }
 
     // 通过船舶 ID 查找船舶
-    public Optional<Ship> getShipById(Long id) {
-        return shipRepository.findById(id);
+    public Ship getShipById(Long id) {
+        return shipRepository.findById(id).orElse(null);
     }
 
     // 通过船舶 MMSI 查找船舶
-    public Optional<Ship> getShipByMmsi(String mmsi) {
-        return shipRepository.findByMmsi(mmsi);
+    public Ship getShipByMmsi(String mmsi) {
+        return shipRepository.findByMmsi(mmsi).orElse(null);
     }
 
     // 通过 MMSI 查找船舶的 ID
-    public Optional<Long> getShipIdByMmsi(String mmsi) {
-        return shipRepository.findIdByMmsi(mmsi);
+    public Long getShipIdByMmsi(String mmsi) {
+        Ship ship = shipRepository.findByMmsi(mmsi).orElse(null);
+        return ship != null ? ship.getId() : null;
     }
 
     // 添加新船舶
