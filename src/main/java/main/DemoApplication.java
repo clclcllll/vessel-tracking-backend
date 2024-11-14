@@ -3,9 +3,7 @@ package main;
 import main.bean.Ship;
 import main.bean.ShipPosition;
 import main.bean.ShipType;
-import main.dao.ShipRepository;
-import main.service.ShipPositionService;
-import main.service.ShipTypeService;
+import main.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -18,13 +16,22 @@ import java.util.Optional;
 public class DemoApplication implements CommandLineRunner {
 
     @Autowired
-    private ShipRepository shipRepository;
+    private ShipService shipService;
 
     @Autowired
     private ShipPositionService shipPositionService;
 
     @Autowired
     private ShipTypeService shipTypeService;
+
+    @Autowired
+    private PortService portService;
+
+    @Autowired
+    private CountryService countryService;
+
+    @Autowired
+    private VoyageService voyageService;
 
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
@@ -33,7 +40,7 @@ public class DemoApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         // 获取所有船舶列表
-        List<Ship> ships = shipRepository.findAll();
+        List<Ship> ships = shipService.getAllShips();
 
         // 检查列表是否为空，并输出第一艘船的信息
         if (!ships.isEmpty()) {
@@ -70,6 +77,17 @@ public class DemoApplication implements CommandLineRunner {
 
             } else {
                 System.out.println("未找到船舶类型");
+            }
+
+            System.out.println("港口名称:" + portService.findByPortCode("PLGDN").getPortName());
+
+            System.out.println("国家名称:" + countryService.findById(7).getCountryName());
+
+            try {
+                System.out.println("第一艘船预计到港时间:" + voyageService.findByShipId(firstShip.getId()).getEta());
+            }
+            catch (Exception e){
+                System.out.println("没有找到任何航程信息");
             }
 
         } else {
