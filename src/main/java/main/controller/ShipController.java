@@ -3,14 +3,8 @@ package main.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import main.bean.Country;
-import main.bean.Ship;
-import main.bean.ShipType;
-import main.bean.Voyage;
-import main.service.CountryService;
-import main.service.ShipService;
-import main.service.ShipTypeService;
-import main.service.VoyageService;
+import main.bean.*;
+import main.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +27,9 @@ public class ShipController {
 
     @Autowired
     private CountryService countryService;
+
+    @Autowired
+    private PortService portService;
 
     // 获取所有船舶列表
     @GetMapping
@@ -73,6 +70,31 @@ public class ShipController {
             Voyage voyage = voyageService.findByShipId(shipId);
             if (voyage != null) {
                 response.put("voyage", voyage);
+
+                // 5. 根据 voyage 中的 arrivalPortId 查询到达港口信息
+                if(voyage.getArrivalPortId() != null) {
+                    Port arrivalPort = portService.findById(voyage.getArrivalPortId());
+                    if (arrivalPort != null) {
+                        response.put("arrivalPort", arrivalPort);
+                    } else {
+                        response.put("arrivalPort", "未找到对应的到达港口信息");
+                    }
+                } else {
+                    response.put("arrivalPort", "未找到对应的到达港口信息");
+                }
+
+
+                // 6. 根据 voyage 中的 departurePortId 查询出发港口信息
+                if(voyage.getDeparturePortId() != null) {
+                    Port departurePort = portService.findById(voyage.getDeparturePortId());
+                    if (departurePort != null) {
+                        response.put("departurePort", departurePort);
+                    } else {
+                        response.put("departurePort", "未找到对应的出发港口信息");
+                    }
+                } else {
+                    response.put("departurePort", "未找到对应的出发港口信息");
+                }
             } else {
                 response.put("voyage", "未找到对应的航程信息");
             }
