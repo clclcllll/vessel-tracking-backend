@@ -19,7 +19,15 @@ public class ShipService {
 
     // 获取所有船舶列表
     public List<Ship> getAllShips() {
-        return shipRepository.findAll();
+        //打印日志
+        System.out.println("ShipService.getAllShips");
+        // 查询所有船舶
+        List<Ship> ships = shipRepository.findAll();
+
+        // 打印查询出的船舶信息
+        ships.forEach(ship -> System.out.println("Ship: " + ship.toString()));
+
+        return ships;
     }
 
     // 通过船舶 ID 查找船舶

@@ -1,5 +1,7 @@
 package main.bean;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -22,6 +24,7 @@ public class Ship {
     private String callSign;
 
     @Column(length = 100, nullable = false)
+    @JsonProperty("ship_name") // 指定序列化字段名称
     private String shipName;
 
     @Column(nullable = false)
