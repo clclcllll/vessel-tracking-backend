@@ -16,10 +16,13 @@ public interface ShipPositionRepository extends JpaRepository<ShipPosition, Long
     List<ShipPosition> findByShipId(Long shipId);
 
     // 根据 shipId 查询所有记录
-    @Query(value = "SELECT sp.id, sp.ship_id AS shipId, ST_AsText(sp.location) AS location, " +
-            "sp.speed, sp.course, sp.heading, sp.status, sp.position_time AS positionTime, sp.create_time AS createTime " +
-            "FROM ship_positions sp WHERE sp.ship_id = :shipId", nativeQuery = true)
+    @Query(value = "SELECT sp.id, sp.ship_id, CAST(ST_X(sp.location) AS DECIMAL(15, 7)) AS longitude, " +
+            "CAST(ST_Y(sp.location) AS DECIMAL(15, 7)) AS latitude, sp.speed, sp.course, sp.heading, sp.status, " +
+            "sp.position_time, sp.create_time " +
+            "FROM ship_positions sp WHERE sp.ship_id = :shipId",
+            nativeQuery = true)
     List<Object[]> findByShipIdWithCoordinatesNative(@Param("shipId") Long shipId);
+
 
 
 

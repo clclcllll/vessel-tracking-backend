@@ -6,6 +6,7 @@ import main.dao.ShipPositionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Date;
@@ -35,35 +36,26 @@ public class ShipPositionService {
         return shipPositionRepository.findByShipId(shipId);
     }
 
-    //
+    //确保 latitude 和 longitude 是小数点格式，避免 JSON 序列化时自动使用科学计数法。
     public List<ShipPosition> findByShipIdWithCoordinates(Long shipId) {
+        DecimalFormat df = new DecimalFormat("#.#######"); // 保留 7 位小数
         List<Object[]> rawResults = shipPositionRepository.findByShipIdWithCoordinatesNative(shipId);
         return rawResults.stream().map(result -> {
             ShipPosition sp = new ShipPosition();
-            sp.setId(result[0] != null ? ((Number) result[0]).longValue() : null);
-            sp.setShipId(result[1] != null ? ((Number) result[1]).longValue() : null);
-
-            // 设置 location
-            sp.setLocation(result[2] != null ? (String) result[2] : null);
-
-            // 设置 latitude 和 longitude
-            if (sp.getLocation() != null && sp.getLocation().startsWith("POINT(") && sp.getLocation().endsWith(")")) {
-                String[] coordinates = sp.getLocation().substring(6, sp.getLocation().length() - 1).split(" ");
-                sp.setLongitude(Double.parseDouble(coordinates[0]));
-                sp.setLatitude(Double.parseDouble(coordinates[1]));
-            }
-
-            // 其他字段
-            sp.setSpeed(result[3] != null ? ((Number) result[3]).intValue() : null);
-            sp.setCourse(result[4] != null ? ((Number) result[4]).intValue() : null);
-            sp.setHeading(result[5] != null ? ((Number) result[5]).intValue() : null);
-            sp.setStatus(result[6] != null ? (String) result[6] : null);
-            sp.setPositionTime(result[7] != null ? ((java.sql.Timestamp) result[7]).toLocalDateTime() : null);
-            sp.setCreateTime(result[8] != null ? ((java.sql.Timestamp) result[8]).toLocalDateTime() : null);
-
+            sp.setId(((Number) result[0]).longValue());
+            sp.setShipId(((Number) result[1]).longValue());
+            sp.setLongitude(Double.valueOf(df.format(((Number) result[2]).doubleValue())));
+            sp.setLatitude(Double.valueOf(df.format(((Number) result[3]).doubleValue())));
+            sp.setSpeed(result[4] != null ? ((Number) result[4]).intValue() : null);
+            sp.setCourse(result[5] != null ? ((Number) result[5]).intValue() : null);
+            sp.setHeading(result[6] != null ? ((Number) result[6]).intValue() : null);
+            sp.setStatus((String) result[7]);
+            sp.setPositionTime(((java.sql.Timestamp) result[8]).toLocalDateTime());
+            sp.setCreateTime(((java.sql.Timestamp) result[9]).toLocalDateTime());
             return sp;
         }).collect(Collectors.toList());
     }
+
 
 
 
