@@ -1,6 +1,8 @@
 package main.utils;
 
 import main.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,11 +18,12 @@ import javax.servlet.http.HttpServletResponse;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenUtil jwtTokenUtil;
-    private final UserService userService; // 替换 CustomUserDetailsService 为 UserService
+    @Lazy // 推迟初始化，解决循环依赖问题
+    @Autowired
+    private UserService userService;
 
     public JwtAuthenticationFilter(JwtTokenUtil jwtTokenUtil, UserService userService) {
         this.jwtTokenUtil = jwtTokenUtil;
-        this.userService = userService;
     }
 
     @Override
