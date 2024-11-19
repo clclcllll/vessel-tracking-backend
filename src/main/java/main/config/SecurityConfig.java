@@ -40,13 +40,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .cors().and() // 启用 CORS
                 .authorizeRequests()
+                .antMatchers("/api/ships/**").permitAll() // 暂时允许匿名访问
                 .antMatchers("/api/auth/**").permitAll() // 允许匿名访问的接口，如登录、注册
                 .anyRequest().authenticated() // 其他接口需要认证
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS); // 无状态认证
 
         // 添加 JWT 验证过滤器
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        //暂时注释掉，因为在这里添加会导致无法获取到用户信息
+        //http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean

@@ -14,9 +14,7 @@ public class User {
     private String username;
     private String password;
 
-    @Column(nullable = false)
     private String salt;
-
     private String email;
     private String phone;
     private Byte status;

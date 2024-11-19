@@ -58,14 +58,8 @@ public class UserService implements UserDetailsService {
         if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new RuntimeException("用户名已存在！");
         }
-        // 设置默认状态
-        user.setStatus(Byte.valueOf("ACTIVE"));
-
-        // 设置随机 salt 并加密密码
-        String salt = generateSalt();
-        user.setSalt(salt);
-        user.setPassword(passwordEncoder.encode(user.getPassword() + salt));
-
+        // 使用 PasswordEncoder 加密密码，不再使用 salt
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         // 保存用户
         return userRepository.save(user);
     }
@@ -79,9 +73,8 @@ public class UserService implements UserDetailsService {
             throw new RuntimeException("用户名或密码错误！");
         }
 
-        // 验证密码（加上用户的 salt 进行校验）
-        String encodedPassword = passwordEncoder.encode(password + user.getSalt());
-        if (!encodedPassword.equals(user.getPassword())) {
+        // 使用 PasswordEncoder 的 matches 方法验证密码
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("用户名或密码错误！");
         }
 

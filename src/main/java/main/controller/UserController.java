@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import main.dto.LoginRequest;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -23,9 +24,11 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestParam String username, @RequestParam String password) {
-        return ResponseEntity.ok(userService.login(username, password));
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        String token = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
+        return ResponseEntity.ok(token); // 返回令牌作为响应内容
     }
+
 
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser() {
