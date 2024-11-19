@@ -35,17 +35,6 @@ public class ShipPositionController {
             positions = shipPositionService.findByShipIdWithCoordinates(shipId);
         }
 
-        // 格式化打印 JSON 数据
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule()); // 注册 JavaTimeModule
-            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // 禁用时间戳格式
-            String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(positions);
-            System.out.println("轨迹数据 (JSON 格式): " + json);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
 
         return positions;
     }

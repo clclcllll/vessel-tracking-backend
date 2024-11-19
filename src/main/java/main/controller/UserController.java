@@ -1,6 +1,7 @@
 package main.controller;
 
 import main.bean.User;
+import main.dto.LoginResponse;
 import main.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -24,10 +25,17 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         String token = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
-        return ResponseEntity.ok(token); // 返回令牌作为响应内容
+        LoginResponse response = new LoginResponse(loginRequest.getUsername(), token);
+        // 打印显示用户名和令牌
+        System.out.println("username: " + response.getUsername());
+        System.out.println("token: " + response.getToken());
+        //打印json
+        System.out.println(response);
+        return ResponseEntity.ok(response); // 返回令牌和用户名
     }
+
 
 
     @GetMapping("/me")
