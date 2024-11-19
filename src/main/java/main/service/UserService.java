@@ -10,14 +10,18 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
 @Service
 public class UserService implements UserDetailsService {
 
+    private static final SecureRandom RANDOM = new SecureRandom(); // 用于生成 salt
+
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder; // 静态 Bean 提供，无需额外配置
+    private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
 
     @Autowired
@@ -47,20 +51,51 @@ public class UserService implements UserDetailsService {
         userRepository.deleteById(id);
     }
 
+    /**
+     * 用户注册时生成随机 salt，并使用 salt 加密密码
+     */
     public User register(User user) {
         if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new RuntimeException("用户名已存在！");
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // 设置默认状态
+        user.setStatus(Byte.valueOf("ACTIVE"));
+
+        // 设置随机 salt 并加密密码
+        String salt = generateSalt();
+        user.setSalt(salt);
+        user.setPassword(passwordEncoder.encode(user.getPassword() + salt));
+
+        // 保存用户
         return userRepository.save(user);
     }
 
+    /**
+     * 用户登录时验证密码（需要使用用户的 salt）
+     */
     public String login(String username, String password) {
         User user = userRepository.findByUsername(username);
-        if (user == null || !passwordEncoder.matches(password, user.getPassword())) {
+        if (user == null) {
             throw new RuntimeException("用户名或密码错误！");
         }
+
+        // 验证密码（加上用户的 salt 进行校验）
+        String encodedPassword = passwordEncoder.encode(password + user.getSalt());
+        if (!encodedPassword.equals(user.getPassword())) {
+            throw new RuntimeException("用户名或密码错误！");
+        }
+
+        // 生成 JWT
         return jwtTokenUtil.generateToken(username);
+    }
+
+    /**
+     * 生成随机 salt
+     */
+    private String generateSalt() {
+        byte[] saltBytes = new byte[16]; // 16 字节长度的 salt
+        RANDOM.nextBytes(saltBytes);
+        return Base64.getEncoder().encodeToString(saltBytes); // 返回 Base64 编码的 salt
     }
 
     @Override

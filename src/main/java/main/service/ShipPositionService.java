@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Date;
 
 @Service
 public class ShipPositionService {
@@ -52,4 +53,10 @@ public class ShipPositionService {
             return Collections.emptyList();
         }
     }
+
+    // 根据shipId和时间范围查询轨迹数据
+    public List<ShipPosition> findByShipIdAndTimeRange(Long shipId, Date startTime, Date endTime) {
+        return shipPositionRepository.findByShipIdAndPositionTimeBetween(shipId, startTime, endTime);
+    }
+
 }

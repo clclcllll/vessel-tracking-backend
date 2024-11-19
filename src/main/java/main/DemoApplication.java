@@ -94,4 +94,5 @@ public class DemoApplication implements CommandLineRunner {
             System.out.println("没有找到任何船舶信息。");
         }
     }
+
 }
