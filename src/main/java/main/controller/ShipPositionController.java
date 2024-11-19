@@ -1,5 +1,8 @@
 package main.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import main.bean.ShipPosition;
 import main.service.ShipPositionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +28,26 @@ public class ShipPositionController {
             @RequestParam(value = "end_time", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Date endTime) {
 
+        List<ShipPosition> positions;
         if (startTime != null && endTime != null) {
-            // 根据船舶ID和时间范围查询轨迹数据
-            return shipPositionService.findByShipIdAndTimeRange(shipId, startTime, endTime);
+            positions = shipPositionService.findByShipIdAndTimeRange(shipId, startTime, endTime);
         } else {
-            // 仅根据船舶ID查询所有轨迹数据
-            return shipPositionService.findByShipId(shipId);
+            positions = shipPositionService.findByShipIdWithCoordinates(shipId);
         }
+
+        // 格式化打印 JSON 数据
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule()); // 注册 JavaTimeModule
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // 禁用时间戳格式
+            String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(positions);
+            System.out.println("轨迹数据 (JSON 格式): " + json);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        return positions;
     }
+
 }

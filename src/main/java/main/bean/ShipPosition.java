@@ -1,5 +1,8 @@
 package main.bean;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -13,20 +16,45 @@ public class ShipPosition {
 
     private Long shipId;
 
-    // Assuming you use a library or custom type to handle point data type in Java
-    private String location; // Replace with the appropriate type or mapping for "point"
+    @Transient
+    private Double latitude;
+
+    @Transient
+    private Double longitude;
+
+    @Column(name = "location")
+    private String location;
 
     private Integer speed;
     private Integer course;
     private Integer heading;
     private String status;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC")
     private LocalDateTime positionTime;
 
     @Column(updatable = false, insertable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "UTC")
     private LocalDateTime createTime;
 
-    // Getters and Setters
+    @PostLoad
+    public void parseLocation() {
+        if (this.location != null && this.location.startsWith("POINT(") && this.location.endsWith(")")) {
+            try {
+                String content = this.location.substring(6, this.location.length() - 1); // 去掉 "POINT(" 和 ")"
+                String[] coordinates = content.split(" ");
+                this.longitude = Double.parseDouble(coordinates[0]);
+                this.latitude = Double.parseDouble(coordinates[1]);
+            } catch (Exception e) {
+                // 如果解析失败，可以打印日志或设置默认值
+                this.longitude = null;
+                this.latitude = null;
+                System.err.println("Failed to parse location: " + this.location);
+            }
+        }
+    }
+
+    // Getters 和 Setters
 
     public Long getId() {
         return id;
@@ -50,6 +78,22 @@ public class ShipPosition {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 
     public Integer getSpeed() {
@@ -94,5 +138,9 @@ public class ShipPosition {
 
     public LocalDateTime getCreateTime() {
         return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
     }
 }

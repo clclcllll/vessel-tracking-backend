@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Service
 public class ShipPositionService {
@@ -34,6 +35,40 @@ public class ShipPositionService {
         return shipPositionRepository.findByShipId(shipId);
     }
 
+    //
+    public List<ShipPosition> findByShipIdWithCoordinates(Long shipId) {
+        List<Object[]> rawResults = shipPositionRepository.findByShipIdWithCoordinatesNative(shipId);
+        return rawResults.stream().map(result -> {
+            ShipPosition sp = new ShipPosition();
+            sp.setId(result[0] != null ? ((Number) result[0]).longValue() : null);
+            sp.setShipId(result[1] != null ? ((Number) result[1]).longValue() : null);
+
+            // 设置 location
+            sp.setLocation(result[2] != null ? (String) result[2] : null);
+
+            // 设置 latitude 和 longitude
+            if (sp.getLocation() != null && sp.getLocation().startsWith("POINT(") && sp.getLocation().endsWith(")")) {
+                String[] coordinates = sp.getLocation().substring(6, sp.getLocation().length() - 1).split(" ");
+                sp.setLongitude(Double.parseDouble(coordinates[0]));
+                sp.setLatitude(Double.parseDouble(coordinates[1]));
+            }
+
+            // 其他字段
+            sp.setSpeed(result[3] != null ? ((Number) result[3]).intValue() : null);
+            sp.setCourse(result[4] != null ? ((Number) result[4]).intValue() : null);
+            sp.setHeading(result[5] != null ? ((Number) result[5]).intValue() : null);
+            sp.setStatus(result[6] != null ? (String) result[6] : null);
+            sp.setPositionTime(result[7] != null ? ((java.sql.Timestamp) result[7]).toLocalDateTime() : null);
+            sp.setCreateTime(result[8] != null ? ((java.sql.Timestamp) result[8]).toLocalDateTime() : null);
+
+            return sp;
+        }).collect(Collectors.toList());
+    }
+
+
+
+
+
     // 保存或更新记录
     public ShipPosition save(ShipPosition shipPosition) {
         return shipPositionRepository.save(shipPosition);
@@ -58,5 +93,6 @@ public class ShipPositionService {
     public List<ShipPosition> findByShipIdAndTimeRange(Long shipId, Date startTime, Date endTime) {
         return shipPositionRepository.findByShipIdAndPositionTimeBetween(shipId, startTime, endTime);
     }
+
 
 }
