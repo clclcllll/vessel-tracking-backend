@@ -41,7 +41,7 @@ public class ShipService {
     }
 
     // 获取船舶详细信息
-    public Map<String, Object> getShipDetailsById(Long shipId) {
+    public Map<String, Object> getShipDetailsJSONById(Long shipId) {
         Map<String, Object> response = new HashMap<>();
 
         Ship ship = shipRepository.findById(shipId).orElseThrow(() ->

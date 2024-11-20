@@ -41,6 +41,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().and() // 启用 CORS
                 .authorizeRequests()
                 .antMatchers("/api/ships/**").permitAll() // 暂时允许匿名访问
+                .antMatchers("/api/ports/**").permitAll() // 暂时允许匿名访问
                 .antMatchers("/api/auth/**").permitAll() // 允许匿名访问的接口，如登录、注册
                 .anyRequest().authenticated() // 其他接口需要认证
                 .and()

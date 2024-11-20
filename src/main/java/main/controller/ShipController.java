@@ -31,7 +31,7 @@ public class ShipController {
     // 获取指定船舶的详细信息
     @GetMapping("/{shipId}/details")
     public Map<String, Object> getShipDetails(@PathVariable Long shipId) {
-        return shipService.getShipDetailsById(shipId);
+        return shipService.getShipDetailsJSONById(shipId);
     }
 
 }
