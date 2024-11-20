@@ -28,11 +28,6 @@ public class UserController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         String token = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
         LoginResponse response = new LoginResponse(loginRequest.getUsername(), token);
-        // 打印显示用户名和令牌
-        System.out.println("username: " + response.getUsername());
-        System.out.println("token: " + response.getToken());
-        //打印json
-        System.out.println(response);
         return ResponseEntity.ok(response); // 返回令牌和用户名
     }
 
