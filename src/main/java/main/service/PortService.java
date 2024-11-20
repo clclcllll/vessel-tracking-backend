@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,45 +59,36 @@ public class PortService {
         // 将查询结果转换为 Map
         Map<String, Object> portInfo = new HashMap<>();
         Object[] result = portDetails.get(0);
-        portInfo.put("id", result[0]);
-        portInfo.put("portCode", result[1]);
-        portInfo.put("portName", result[2]);
-        portInfo.put("country", result[3]);
-        portInfo.put("portType", result[4]);
-        portInfo.put("portSize", result[5]);
 
-        // 确保经度和纬度是 Double 类型
-        if (result[6] instanceof Double) {
-            portInfo.put("longitude", (Double) result[6]);
-        } else if (result[6] instanceof BigDecimal) {
-            portInfo.put("longitude", ((BigDecimal) result[6]).doubleValue());
-        } else {
-            throw new RuntimeException("未知的经度类型: " + result[6].getClass().getName());
-        }
+        // 处理每个字段，确保 NULL 值被正确处理
+        portInfo.put("id", result[0] != null ? ((Number) result[0]).intValue() : null);
+        portInfo.put("portCode", result[1] != null ? (String) result[1] : null);
+        portInfo.put("portName", result[2] != null ? (String) result[2] : null);
+        portInfo.put("country", result[3] != null ? (String) result[3] : null);
+        portInfo.put("portType", result[4] != null ? (String) result[4] : null);
+        portInfo.put("portSize", result[5] != null ? (String) result[5] : null);
 
-        if (result[7] instanceof Double) {
-            portInfo.put("latitude", (Double) result[7]);
-        } else if (result[7] instanceof BigDecimal) {
-            portInfo.put("latitude", ((BigDecimal) result[7]).doubleValue());
-        } else {
-            throw new RuntimeException("未知的纬度类型: " + result[7].getClass().getName());
-        }
+        // 经度和纬度处理，确保值为小数并避免科学计数法
+        DecimalFormat df = new DecimalFormat("#.#######"); // 保留 7 位小数
+        portInfo.put("longitude", result[6] != null ? Double.valueOf(df.format(((Number) result[6]).doubleValue())) : null);
+        portInfo.put("latitude", result[7] != null ? Double.valueOf(df.format(((Number) result[7]).doubleValue())) : null);
 
-        portInfo.put("timeZone", result[8]);
-        portInfo.put("anchorage", result[9]);
-        portInfo.put("berthDraft", result[10]);
-        portInfo.put("chartNumber", result[11]);
-        portInfo.put("portAuthority", result[12]);
-        portInfo.put("address", result[13]);
-        portInfo.put("phone", result[14]);
-        portInfo.put("fax", result[15]);
-        portInfo.put("website", result[16]);
-        portInfo.put("introduction", result[17]);
-        portInfo.put("createTime", result[18]);
-        portInfo.put("updateTime", result[19]);
+        portInfo.put("timeZone", result[8] != null ? (String) result[8] : null);
+        portInfo.put("anchorage", result[9] != null ? (String) result[9] : null);
+        portInfo.put("berthDraft", result[10] != null ? ((String) result[10]) : null);
+        portInfo.put("chartNumber", result[11] != null ? ((String) result[11]) : null);
+        portInfo.put("portAuthority", result[12] != null ? (String) result[12] : null);
+        portInfo.put("address", result[13] != null ? (String) result[13] : null);
+        portInfo.put("phone", result[14] != null ? (String) result[14] : null);
+        portInfo.put("fax", result[15] != null ? (String) result[15] : null);
+        portInfo.put("website", result[16] != null ? (String) result[16] : null);
+        portInfo.put("introduction", result[17] != null ? (String) result[17] : null);
+        portInfo.put("createTime", result[18] != null ? ((java.sql.Timestamp) result[18]).toLocalDateTime() : null);
+        portInfo.put("updateTime", result[19] != null ? ((java.sql.Timestamp) result[19]).toLocalDateTime() : null);
 
         response.put("port", portInfo);
 
         return response;
     }
+
 }
