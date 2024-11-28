@@ -2,9 +2,12 @@ package main.controller;
 
 import main.service.PortService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -37,4 +40,22 @@ public class PortController {
         }
     }
 
+    /**
+     * 查询所有港口信息
+     *
+     * @return 所有港口的 JSON 列表
+     */
+    @GetMapping("/all")
+    public Map<String, Object> getAllPorts() {
+        try {
+            // 调用 PortService 获取所有港口的 JSON 列表
+            return portService.getAllPortsJSON();
+        } catch (RuntimeException e) {
+            // 处理已知运行时异常
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        } catch (Exception ex) {
+            // 处理未知异常
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred.", ex);
+        }
+    }
 }

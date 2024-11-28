@@ -32,4 +32,12 @@ public interface PortRepository extends JpaRepository<Port, Integer> {
                     "FROM ports p WHERE p.id = :id",
             nativeQuery = true)
     List<Object[]> findPortByIdWithCoordinatesNative(@Param("id") Integer id);
+
+    // 查询所有港口的 id、port_name 和经纬度
+    @Query(value =
+            "SELECT p.id, p.port_name, ST_X(p.position) AS longitude, ST_Y(p.position) AS latitude " +
+                    "FROM ports p",
+            nativeQuery = true)
+    List<Object[]> findAllPortsWithCoordinatesNative();
+
 }

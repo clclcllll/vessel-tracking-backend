@@ -1,15 +1,12 @@
 package main.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import main.bean.Port ;
 import main.dao.PortRepository ;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +84,42 @@ public class PortService {
         portInfo.put("updateTime", result[19] != null ? ((java.sql.Timestamp) result[19]).toLocalDateTime() : null);
 
         response.put("port", portInfo);
+
+        return response;
+    }
+
+    public Map<String, Object> getAllPortsJSON() {
+        Map<String, Object> response = new HashMap<>();
+
+        // 查询所有港口的 id、port_name 和经纬度
+        List<Object[]> allPortsDetails = portRepository.findAllPortsWithCoordinatesNative();
+
+        if (allPortsDetails.isEmpty()) {
+            throw new RuntimeException("未找到港口信息！");
+        }
+
+        // 将查询结果转换为 List
+        List<Map<String, Object>> portsInfoList = new ArrayList<>();
+
+        for (Object[] result : allPortsDetails) {
+            // 将每个港口的简要信息转换为 Map
+            Map<String, Object> portInfo = new HashMap<>();
+
+            // 处理每个字段，确保 NULL 值被正确处理
+            portInfo.put("id", result[0] != null ? ((Number) result[0]).intValue() : null);
+            portInfo.put("portName", result[1] != null ? (String) result[1] : null);
+
+            // 经度和纬度处理，确保值为小数并避免科学计数法
+            DecimalFormat df = new DecimalFormat("#.#######"); // 保留 7 位小数
+            portInfo.put("longitude", result[2] != null ? Double.valueOf(df.format(((Number) result[2]).doubleValue())) : null);
+            portInfo.put("latitude", result[3] != null ? Double.valueOf(df.format(((Number) result[3]).doubleValue())) : null);
+
+            // 添加到港口信息列表
+            portsInfoList.add(portInfo);
+        }
+
+        // 返回所有港口信息
+        response.put("ports", portsInfoList);
 
         return response;
     }
